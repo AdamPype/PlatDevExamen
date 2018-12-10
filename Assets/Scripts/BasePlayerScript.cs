@@ -7,29 +7,32 @@ using UnityEngine.Assertions;
 //[RequireComponent(typeof(CharacterController))]
 public class BasePlayerScript : MonoBehaviour {
 
-
-
+    //state machine
+    public enum PlayerState {
+        LedgeGrabbing,
+        Normal,
+        Holding
+        }
+    private PlayerState _state = PlayerState.Normal;
+    //inspector vars
     [SerializeField] private float _acceleration;
     [SerializeField] private float _runAcceleration;
     [SerializeField] private float _drag;
     [SerializeField] private float _maximumXZVelocity = (30 * 1000) / (60 * 60); //[m/s] 30km/h
     [SerializeField] private float _jumpHeight;
-
+    //private components
     private Transform _absoluteTransform;
     private CharacterController _char;
-    [HideInInspector] public Animator Anim;
-    private Transform _ledgeRaycast;
+    private Animator _anim;
     private CameraScript _cam;
     private HandIKTouchScript _handsIK;
-    private ThrowingScript _thrower;
-
-    [HideInInspector] public Vector3 Velocity = Vector3.zero; // [m/s]
-    [HideInInspector] public Vector3 InputMovement;
-    [HideInInspector] public bool IsHolding = false;
-    [HideInInspector] public bool IsTouching = false;
+    private AimingArchScript _aimingArch;
+    private Transform _ledgeRaycast;
+    //private vars
+    private Vector3 _velocity = Vector3.zero; // [m/s]
+    private Vector3 _inputMovement;
     private bool _jump;
     private bool _isJumping;
-    private bool _isLedgeGrabbing = false;
     private float _notGroundedTimer;
 
     void Start()
@@ -37,13 +40,13 @@ public class BasePlayerScript : MonoBehaviour {
         //attach components
         _char = GetComponent<CharacterController>();
         _absoluteTransform = Camera.main.transform;
-        Anim = transform.Find("Model").GetComponent<Animator>();
+        _anim = transform.Find("Model").GetComponent<Animator>();
         _ledgeRaycast = transform.Find("LedgeGrabRaycast");
         _cam = GetComponent<CameraScript>();
-        _thrower = transform.Find("Thrower").GetComponent<ThrowingScript>();
+        _aimingArch = transform.Find("Thrower").GetComponent<AimingArchScript>();
 
         _handsIK = transform.Find("HandIK").GetComponent<HandIKTouchScript>();
-        TouchIKBehaviour touchBeh = Anim.GetBehaviour<TouchIKBehaviour>();
+        TouchIKBehaviour touchBeh = _anim.GetBehaviour<TouchIKBehaviour>();
         touchBeh.LeftHandPos = _handsIK.LeftHand;
         touchBeh.RightHandPos = _handsIK.RightHand;
 
@@ -56,8 +59,8 @@ public class BasePlayerScript : MonoBehaviour {
 
     private void Update()
         {
-        InputMovement = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;  //.normalized;
-        if (Input.GetButtonDown("Jump") && (!_isJumping || _isLedgeGrabbing))
+        _inputMovement = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;  //.normalized;
+        if (Input.GetButtonDown("Jump") && (!_isJumping || _state == PlayerState.LedgeGrabbing))
             {
             _jump = true;
             }
@@ -67,33 +70,35 @@ public class BasePlayerScript : MonoBehaviour {
 
     private void PickupItems()
         {
-        if (!IsHolding && IsTouching && Input.GetButtonDown("Pickup") && _handsIK.ItemTouching.DamageTimer <= 0 && _handsIK.ItemTouching.Health > 0)
+        switch (_state)
             {
-            //pick up item
-            IsHolding = true;
-            _handsIK.ItemTouching.State = PickupableItemScript.PickupItemState.PickedUp;
-            }
-        else if (IsHolding)
-            {
-            _handsIK.ItemTouching.transform.parent = _thrower.transform;
-            _thrower.DrawParabola = true;
-            _handsIK.ItemTouching.transform.localPosition = Vector3.Lerp(_handsIK.ItemTouching.transform.localPosition, Vector3.zero + (Vector3.up * _handsIK.ItemTouching.Rend.bounds.extents.y), 0.2f);
+            case PlayerState.Normal:
+                _aimingArch.DrawParabola = false;
+                if (_handsIK.IsTouching && Input.GetButtonDown("Pickup") && _handsIK.CanHold)
+                    {
+                    //pick up item
+                    _handsIK.IsHolding = true;
+                    _handsIK.ItemTouching.State = PickupableItemScript.PickupItemState.PickedUp;
+                    _state = PlayerState.Holding;
+                    }
+                break;
+            case PlayerState.Holding:
+                //holding item
+                _handsIK.ItemTouching.transform.parent = _aimingArch.transform;
+                _aimingArch.DrawParabola = true;
+                _handsIK.ItemTouching.transform.localPosition = Vector3.Lerp(_handsIK.ItemTouching.transform.localPosition, Vector3.zero + (Vector3.up * _handsIK.ItemTouching.Rend.bounds.extents.y), 0.2f);
 
-            //throw
-            if (Input.GetButtonDown("Pickup"))
-                {
-                _handsIK.ItemTouching.State = PickupableItemScript.PickupItemState.Normal;
-                IsHolding = false;
-                _thrower.DrawParabola = true;
-                Rigidbody rb = _handsIK.ItemTouching.GetComponent<Rigidbody>();
-                rb.isKinematic = false;
-                rb.AddForce(_thrower.GetDirection() * rb.mass, ForceMode.Impulse);
-                _handsIK.ItemTouching.transform.parent = null;
-                }
-            }
-        else
-            {
-            _thrower.DrawParabola = false;
+                //throw
+                if (Input.GetButtonDown("Pickup"))
+                    {
+                    _handsIK.IsHolding = false;
+                    _handsIK.ItemTouching.ThrowItem(_aimingArch);
+                    _state = PlayerState.Normal;
+                    }
+                break;
+            default:
+                _aimingArch.DrawParabola = false;
+                break;
             }
         }
 
@@ -102,7 +107,7 @@ public class BasePlayerScript : MonoBehaviour {
         TimeGrounded();
         CheckLedgeGrab();
 
-        if (_isLedgeGrabbing)
+        if (_state == PlayerState.LedgeGrabbing)
             {
             JumpLedge();
             }
@@ -122,9 +127,10 @@ public class BasePlayerScript : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other)
         {
-        if (Velocity.y > 0)
+        //bumping your head against a roof
+        if (_velocity.y > 0)
             {
-            Velocity.y = 0;
+            _velocity.y = 0;
             }
         }
 
@@ -132,10 +138,10 @@ public class BasePlayerScript : MonoBehaviour {
         {
         if (_jump)
             {
-            _isLedgeGrabbing = false;
+            _state = PlayerState.Normal;
             //jump
-            Velocity.y += Mathf.Sqrt(2 * Physics.gravity.magnitude * _jumpHeight / 1.5f);
-            Velocity += transform.forward * 2;
+            _velocity.y += Mathf.Sqrt(2 * Physics.gravity.magnitude * _jumpHeight / 1.5f);
+            _velocity += transform.forward * 2;
             _jump = false;
             _isJumping = true;
             }
@@ -155,37 +161,37 @@ public class BasePlayerScript : MonoBehaviour {
 
     private void CheckLedgeGrab()
         {
-        if (_notGroundedTimer > 2 && Velocity.y < 0)
+        if (_notGroundedTimer > 2 && _velocity.y < 0 && _state == PlayerState.Normal)
             {
             RaycastHit hit;
             if (Physics.Raycast(_ledgeRaycast.position, Vector3.down, out hit, 0.1f))
                 {
-                _isLedgeGrabbing = true;
-                Velocity = Vector3.zero;
+                _state = PlayerState.LedgeGrabbing;
+                _velocity = Vector3.zero;
                 }
             }
-        _cam.FreezeY = _isLedgeGrabbing;
+        _cam.FreezeY = _state == PlayerState.LedgeGrabbing;
         }
 
     private void AnimateMovement()
         {
-        Vector3 XZvel = Vector3.Scale(Velocity, new Vector3(1, 0, 1));
+        Vector3 XZvel = Vector3.Scale(_velocity, new Vector3(1, 0, 1));
         Vector3 localVelXZ = transform.InverseTransformDirection(XZvel);
-        Anim.SetFloat("VerticalVelocity", (localVelXZ.z * (_drag)) / _maximumXZVelocity);
-        Anim.SetFloat("HorizontalVelocity", (localVelXZ.x * (_drag)) / _maximumXZVelocity);
-        Anim.SetBool("Jumping", _isJumping);
-        Anim.SetBool("LedgeGrabbing", _isLedgeGrabbing);
-        Anim.SetBool("Falling", _notGroundedTimer > 2 && Velocity.y < 0);
-        Anim.SetBool("Touch", IsHolding || (_notGroundedTimer <= 2 && IsTouching));
+        _anim.SetFloat("VerticalVelocity", (localVelXZ.z * (_drag)) / _maximumXZVelocity);
+        _anim.SetFloat("HorizontalVelocity", (localVelXZ.x * (_drag)) / _maximumXZVelocity);
+        _anim.SetBool("Jumping", _isJumping);
+        _anim.SetBool("LedgeGrabbing", _state == PlayerState.LedgeGrabbing);
+        _anim.SetBool("Falling", _notGroundedTimer > 2 && _velocity.y < 0);
+        _anim.SetBool("Touch", _handsIK.IsHolding || (_notGroundedTimer <= 2 && _handsIK.IsTouching));
 
         //run
-        if (_notGroundedTimer <= 2 && Velocity != Vector3.zero && Input.GetButton("Run"))
+        if (_notGroundedTimer <= 2 && _velocity != Vector3.zero && Input.GetButton("Run"))
             {
-            Anim.speed = 1.2f;
+            _anim.speed = 1.2f;
             }
         else
             {
-            Anim.speed = 1;
+            _anim.speed = 1;
             }
         }
 
@@ -204,7 +210,7 @@ public class BasePlayerScript : MonoBehaviour {
         if (_char.isGrounded)
             {
             //ground velocity
-            Velocity -= Vector3.Project(Velocity, Physics.gravity);
+            _velocity -= Vector3.Project(_velocity, Physics.gravity);
             }
         }
 
@@ -213,7 +219,7 @@ public class BasePlayerScript : MonoBehaviour {
         if (!_char.isGrounded)
             {
             //apply gravity
-            Velocity += Physics.gravity * Time.deltaTime;
+            _velocity += Physics.gravity * Time.deltaTime;
             }
         }
 
@@ -226,13 +232,13 @@ public class BasePlayerScript : MonoBehaviour {
             Quaternion relativeRot = Quaternion.LookRotation(xzForward);
 
             //move in relative direction
-            Vector3 relativeMov = relativeRot * InputMovement;
+            Vector3 relativeMov = relativeRot * _inputMovement;
             float acc = _acceleration;
             if (Input.GetButton("Run"))
                 {
                 acc = _runAcceleration;
                 }
-            Velocity += relativeMov * acc * Time.deltaTime;
+            _velocity += relativeMov * acc * Time.deltaTime;
 
             //_anim.transform.rotation = Quaternion.LookRotation(xzForward);
             }
@@ -241,12 +247,12 @@ public class BasePlayerScript : MonoBehaviour {
 
     private void LimitXZVelocity()
         {
-        Vector3 yVel = Vector3.Scale(Velocity, Vector3.up);
-        Vector3 xzVel = Vector3.Scale(Velocity, new Vector3(1, 0, 1));
+        Vector3 yVel = Vector3.Scale(_velocity, Vector3.up);
+        Vector3 xzVel = Vector3.Scale(_velocity, new Vector3(1, 0, 1));
 
         xzVel = Vector3.ClampMagnitude(xzVel, _maximumXZVelocity);
 
-        Velocity = xzVel + yVel;
+        _velocity = xzVel + yVel;
         }
 
     private void ApplyDragOnGround()
@@ -254,7 +260,7 @@ public class BasePlayerScript : MonoBehaviour {
         if (_char.isGrounded)
             {
             //drag
-            Velocity = Velocity * (1 - _drag * Time.deltaTime); //same as lerp
+            _velocity = _velocity * (1 - _drag * Time.deltaTime); //same as lerp
             }
         }
 
@@ -262,7 +268,7 @@ public class BasePlayerScript : MonoBehaviour {
         {
         if (_char.isGrounded && _jump)
             {
-            Velocity.y += Mathf.Sqrt(2 * Physics.gravity.magnitude * _jumpHeight);
+            _velocity.y += Mathf.Sqrt(2 * Physics.gravity.magnitude * _jumpHeight);
             _jump = false;
             _isJumping = true;
             }
@@ -275,7 +281,7 @@ public class BasePlayerScript : MonoBehaviour {
     private void DoMovement()
         {
         //do velocity / movement on character controller
-        Vector3 movement = Velocity * Time.deltaTime;
+        Vector3 movement = _velocity * Time.deltaTime;
         _char.Move(movement);
         }
 

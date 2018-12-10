@@ -2500,11 +2500,6 @@ MonoBehaviour:
   _drag: 8
   _maximumXZVelocity: 40
   _jumpHeight: 2
-  Anim: {fileID: 0}
-  Velocity: {x: 0, y: 0, z: 0}
-  InputMovement: {x: 0, y: 0, z: 0}
-  IsHolding: 0
-  IsTouching: 0
 --- !u!114 &114197397965977750
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2519,8 +2514,7 @@ MonoBehaviour:
   _maxLength: 5
   _segmentLength: 0.08
   _throwStrength: 5
-  _yness: 4
-  DrawParabola: 0
+  _aimingAngle: 4
 --- !u!114 &114495875505092736
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2534,9 +2528,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _handDistance: 1
   _handOffsetDistance: 0.2
-  LeftHand: {fileID: 0}
-  RightHand: {fileID: 0}
-  ItemTouching: {fileID: 0}
 --- !u!114 &114611555743372174
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2550,7 +2541,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _orbitSpeed: {x: 2, y: -2}
   _xClamp: {x: -20, y: 30}
-  FreezeY: 0
 --- !u!120 &120252163880724528
 LineRenderer:
   m_ObjectHideFlags: 1

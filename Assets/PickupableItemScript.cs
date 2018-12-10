@@ -1,21 +1,23 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PickupableItemScript : MonoBehaviour {
 
+    //state machine
     public enum PickupItemState {
         Normal,
         PickedUp,
         Destroyed
         }
-    [HideInInspector] public PickupItemState State = PickupItemState.Normal;
+    public PickupItemState State { get; set; }
 
     [SerializeField] private bool _destructable = false;
     [SerializeField] private float _damageSpeedThreshold;
-    public int Health = 0;
     [SerializeField] private float _damageTime;
     [SerializeField] private float _damageGrow;
+    public int Health = 0;
 
     [HideInInspector] public Renderer Rend;
     [HideInInspector] public float Height;
@@ -29,6 +31,7 @@ public class PickupableItemScript : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        State = PickupItemState.Normal;
         _rb = GetComponent<Rigidbody>();
         Rend = GetComponent<Renderer>();
         _startCol = Rend.material.color;
@@ -96,5 +99,13 @@ public class PickupableItemScript : MonoBehaviour {
                 Debug.Log(_rb.velocity.magnitude);
                 }
             }
+        }
+
+    internal void ThrowItem(AimingArchScript aimingArch)
+        {
+        _rb.isKinematic = false;
+        _rb.AddForce(aimingArch.Direction, ForceMode.VelocityChange);
+        State = PickupItemState.Normal;
+        transform.parent = null;
         }
     }

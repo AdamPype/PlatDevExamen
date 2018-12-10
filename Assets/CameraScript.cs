@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraScript : MonoBehaviour {
-
+    //inspector vars
     [SerializeField] private Vector2 _orbitSpeed;
     [SerializeField] private Vector2 _xClamp;
+    //private components
     private Transform _xAxis;
-    [HideInInspector] public bool FreezeY;
+    //properties
+    public bool FreezeY { get; set; }
 
 	// Use this for initialization
 	void Start () {
@@ -25,6 +27,5 @@ public class CameraScript : MonoBehaviour {
         newRot.x += Input.GetAxisRaw("Mouse Y") * _orbitSpeed.y;
         newRot.x = BasePlayerScript.ClampAngle(newRot.x, _xClamp.x, _xClamp.y);
         _xAxis.localEulerAngles = newRot;
-
     }
 }

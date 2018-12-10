@@ -2,19 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ThrowingScript : MonoBehaviour {
-    
+public class AimingArchScript : MonoBehaviour {
+
+    //inspector private vars
     [SerializeField] private float _maxLength;
     [SerializeField] private float _segmentLength;
     [SerializeField] private float _throwStrength;
-    [SerializeField] private float _yness;
-
+    [SerializeField] private float _aimingAngle;
+    //private components
     private LineRenderer _line;
     private Transform _cam;
-
+    //private vars
     private Vector3 _directionVelocity;
-
-    public bool DrawParabola = false;
+    //properties
+    public bool DrawParabola {get; set;}
 
 	// Use this for initialization
 	void Start () {
@@ -26,7 +27,7 @@ public class ThrowingScript : MonoBehaviour {
 	void Update () {
         //rotate direction along camera
         Vector3 newDir = _cam.forward * _throwStrength;
-        newDir.y += _yness;
+        newDir.y += _aimingAngle;
         _directionVelocity = Vector3.Lerp(_directionVelocity, newDir, 0.2f);
 
         if (DrawParabola)
@@ -60,11 +61,13 @@ public class ThrowingScript : MonoBehaviour {
         return start + startVelocity * time + Physics.gravity * time * time * 0.5f;
         }
 
-    public Vector3 GetDirection()
+    public Vector3 Direction
         {
-        //rotate direction along camera
-        Vector3 newDir = _cam.forward * _throwStrength;
-        newDir.y += _yness;
-        return Vector3.Lerp(_directionVelocity, newDir, 0.2f);
+        get {
+            //rotate direction along camera
+            Vector3 newDir = _cam.forward * _throwStrength;
+            newDir.y += _aimingAngle;
+            return Vector3.Lerp(_directionVelocity, newDir, 0.2f);
+            }
         }
     }
