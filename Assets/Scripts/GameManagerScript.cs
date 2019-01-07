@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManagerScript : MonoBehaviour {
 
@@ -33,6 +34,9 @@ public class GameManagerScript : MonoBehaviour {
             if (!_loseText.activeSelf) _snd.Play("Lose", false, 0);
             _loseText.SetActive(true);
             }
+
+        //DEBUG RESET STAGE
+        if (Input.GetKeyDown(KeyCode.R)) SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 	}
 
     private bool CheckLose()
