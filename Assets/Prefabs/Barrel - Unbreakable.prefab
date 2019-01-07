@@ -24,6 +24,8 @@ GameObject:
   - component: {fileID: 114863603592049936}
   - component: {fileID: 54956280288346214}
   - component: {fileID: 64041979650865246}
+  - component: {fileID: 114250882672309048}
+  - component: {fileID: 114977610253810342}
   m_Layer: 0
   m_Name: Barrel - Unbreakable
   m_TagString: Untagged
@@ -115,6 +117,19 @@ MeshCollider:
   m_CookingOptions: 14
   m_SkinWidth: 0.01
   m_Mesh: {fileID: 4300000, guid: c7a4b70d793f2e644a2dc5c52ed6a33f, type: 3}
+--- !u!114 &114250882672309048
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1931941386059772}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6970c4a9a4e5bd94f884e92ec77c6d7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _audioPrefab: {fileID: 1304332168839828, guid: 39d65e8834ad67f4e841f0a7028b3f84,
+    type: 2}
 --- !u!114 &114863603592049936
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -126,12 +141,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03059939d3c032f418a679e9dc7b4902, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  State: 0
   _destructable: 0
-  _damageSpeedThreshold: 0
-  Health: 2
   _damageTime: 0
   _damageGrow: 0
-  Rend: {fileID: 0}
-  Height: 0
-  DamageTimer: 0
+  _enemyBounceoffForce: 5
+  _deadZoneHeight: -10
+  Health: 2
+--- !u!114 &114977610253810342
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1931941386059772}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af3a5ff5f9bfd4b4a8b41ae821e9dff1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _sounds:
+  - {fileID: 8300000, guid: 865fa7e144c4af84292b2488a30e3ef8, type: 3}
+  - {fileID: 8300000, guid: bca00f3f61969834890990c332ca3f16, type: 3}
+  - {fileID: 8300000, guid: 2f6e68eccc6bdce4b90310ad7ba83f9d, type: 3}
+  - {fileID: 8300000, guid: c83ced58a70b95740b146efc18f9231c, type: 3}
+  - {fileID: 8300000, guid: 42bdc8278ada1004b88e365092c6960c, type: 3}
+  _names:
+  - Hit
+  - Hit
+  - Hit
+  - Throw
+  - Throw

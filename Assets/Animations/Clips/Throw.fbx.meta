@@ -139,7 +139,7 @@ ModelImporter:
     400130: mixamorig:Spine1
     400132: mixamorig:Spine2
     400134: //RootNode
-    7400000: mixamo.com
+    7400000: Throw
     9500000: //RootNode
   externalObjects: {}
   materials:
@@ -170,12 +170,12 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: mixamo.com
+      name: Throw
       takeName: mixamo.com
-      firstFrame: 0
+      firstFrame: 16
       lastFrame: 65
       wrapMode: 0
-      orientationOffsetY: 0
+      orientationOffsetY: -10
       level: 0
       cycleOffset: 0
       loop: 0

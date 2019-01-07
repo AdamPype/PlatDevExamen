@@ -63,7 +63,7 @@ public class HandIKTouchScript : MonoBehaviour {
             }
 
         //see if the item is being touched
-        IsTouching = ItemTouching && (Vector3.Distance(LeftHand.position, _leftHandRest.position) > 0.03f || Vector3.Distance(RightHand.position, _rightHandRest.position) > 0.03f);
+        IsTouching = ItemTouching && (Vector3.Distance(LeftHand.position, _leftHandRest.position) > 0.03f && Vector3.Distance(RightHand.position, _rightHandRest.position) > 0.03f);
         //make sure the item can be held
         if (ItemTouching)
             CanHold = ItemTouching.Health > 0 && ItemTouching.DamageTimer <= 0;
@@ -81,8 +81,8 @@ public class HandIKTouchScript : MonoBehaviour {
             }
         else //rotate IK to object held
             {
-            Vector3 newRot = (ItemTouching.transform.position - transform.position).normalized;
-            newRot.x += 180;
+            Vector3 newRot = transform.localEulerAngles;
+            newRot.x = -90;
             transform.localEulerAngles = newRot;
             }
         }

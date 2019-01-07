@@ -24,6 +24,8 @@ GameObject:
   - component: {fileID: 114720550943109354}
   - component: {fileID: 54597787368005906}
   - component: {fileID: 64030365069939344}
+  - component: {fileID: 114854040279266186}
+  - component: {fileID: 114169362048572284}
   m_Layer: 0
   m_Name: Barrel - Breakable
   m_TagString: Untagged
@@ -115,6 +117,35 @@ MeshCollider:
   m_CookingOptions: 14
   m_SkinWidth: 0.01
   m_Mesh: {fileID: 4300000, guid: c7a4b70d793f2e644a2dc5c52ed6a33f, type: 3}
+--- !u!114 &114169362048572284
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1520694069104386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af3a5ff5f9bfd4b4a8b41ae821e9dff1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _sounds:
+  - {fileID: 8300000, guid: f4825eeeb1806984c891d8bdbad2f154, type: 3}
+  - {fileID: 8300000, guid: dd582d3f3e78a534abdf7a3da16f767d, type: 3}
+  - {fileID: 8300000, guid: 9cc8cab5303e3b84993719e3a932c745, type: 3}
+  - {fileID: 8300000, guid: 2335316c348364d469d5d80e6a3a18b7, type: 3}
+  - {fileID: 8300000, guid: 2afcdf497e726db448dc23f59dec5f87, type: 3}
+  - {fileID: 8300000, guid: 1e785f2ae4b7e644a9301a992130385b, type: 3}
+  - {fileID: 8300000, guid: c83ced58a70b95740b146efc18f9231c, type: 3}
+  - {fileID: 8300000, guid: 42bdc8278ada1004b88e365092c6960c, type: 3}
+  _names:
+  - Break
+  - Break
+  - Break
+  - Hit
+  - Hit
+  - Hit
+  - Throw
+  - Throw
 --- !u!114 &114720550943109354
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -126,12 +157,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03059939d3c032f418a679e9dc7b4902, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  State: 0
   _destructable: 1
-  _damageSpeedThreshold: 2
-  Health: 2
   _damageTime: 0.1
   _damageGrow: 0.5
-  Rend: {fileID: 0}
-  Height: 0
-  DamageTimer: 0
+  _enemyBounceoffForce: 5
+  _deadZoneHeight: -10
+  Health: 2
+--- !u!114 &114854040279266186
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1520694069104386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6970c4a9a4e5bd94f884e92ec77c6d7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _audioPrefab: {fileID: 1304332168839828, guid: 39d65e8834ad67f4e841f0a7028b3f84,
+    type: 2}

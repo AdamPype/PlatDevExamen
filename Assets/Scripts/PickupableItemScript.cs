@@ -14,19 +14,25 @@ public class PickupableItemScript : MonoBehaviour {
     public PickupItemState State { get; set; }
 
     [SerializeField] private bool _destructable = false;
-    [SerializeField] private float _damageSpeedThreshold;
+    //[SerializeField] private float _damageSpeedThreshold;
     [SerializeField] private float _damageTime;
     [SerializeField] private float _damageGrow;
-    public int Health = 0;
+    [SerializeField] private float _enemyBounceoffForce;
+    [SerializeField, Space] private float _deadZoneHeight = -5;
 
-    [HideInInspector] public Renderer Rend;
-    [HideInInspector] public float Height;
-    [HideInInspector] public float DamageTimer = 0;
+    public Renderer Rend { get; set; }
+
+    public int Health = 0;
+    public float Height { get; set; }
+    public float DamageTimer { get; set; }
+
     private Rigidbody _rb;
+    private AudioEmitterScript _audioEmitter;
+    private SoundManager _snd;
     
     private Color _startCol;
     private Vector3 _startScale;
-
+    private bool _isThrown;
 
 
     // Use this for initialization
@@ -36,6 +42,8 @@ public class PickupableItemScript : MonoBehaviour {
         Rend = GetComponent<Renderer>();
         _startCol = Rend.material.color;
         _startScale = transform.localScale;
+        _audioEmitter = GetComponent<AudioEmitterScript>();
+        _snd = GetComponent<SoundManager>();
         }
 	
 	// Update is called once per frame
@@ -68,19 +76,34 @@ public class PickupableItemScript : MonoBehaviour {
                     break;
                 }
 
-            //do damage indication and destruction
-            if (_destructable)
+            ApplyDamage();
+            }
+
+        DestroyWhenOffMap();
+        }
+
+    private void DestroyWhenOffMap()
+        {
+        if (transform.position.y < _deadZoneHeight)
+            {
+            Destroy(gameObject);
+            }
+        }
+
+    private void ApplyDamage()
+        {
+        //do damage indication and destruction
+        if (_destructable)
+            {
+            if (DamageTimer > 0)
                 {
-                if (DamageTimer > 0)
+                transform.localScale = Vector3.Lerp(_startScale, _startScale * (1 + _damageGrow), DamageTimer / _damageTime);
+                DamageTimer -= Time.deltaTime;
+                if (DamageTimer <= 0 && Health <= 0)
                     {
-                    transform.localScale = Vector3.Lerp(_startScale, _startScale * (1 + _damageGrow), DamageTimer/_damageTime);
-                    DamageTimer -= Time.deltaTime;
-                    if (DamageTimer <= 0 && Health <= 0)
-                        {
-                        GetComponent<Collider>().enabled = false;
-                        Destroy(_rb);
-                        State = PickupItemState.Destroyed;
-                        }
+                    GetComponent<Collider>().enabled = false;
+                    Destroy(_rb);
+                    State = PickupItemState.Destroyed;
                     }
                 }
             }
@@ -88,17 +111,31 @@ public class PickupableItemScript : MonoBehaviour {
 
     private void OnCollisionEnter(Collision collision)
         {
-        //on collision with enough force
-        if (State == PickupItemState.Normal)
+        if (!collision.collider.isTrigger)
             {
-            if (_destructable && _rb.velocity.magnitude > _damageSpeedThreshold && DamageTimer <= 0)
+            //on throw with enough force
+            if (State == PickupItemState.Normal && _isThrown)
                 {
-                //do damage
-                DamageTimer = _damageTime;
-                Health--;
-                Debug.Log(_rb.velocity.magnitude);
+                if (_destructable && DamageTimer <= 0)
+                    {
+                    //do damage
+                    DamageTimer = _damageTime;
+                    Health--;
+                    _snd.Play("Break");
+                    //Debug.Log(_rb.velocity.magnitude);
+                    }
+                _audioEmitter.EmitAudio(collision.contacts[0].point, _rb.velocity.magnitude);
+
+                if (collision.gameObject.CompareTag("Enemy"))
+                    {
+                    Enemy enemy = collision.gameObject.GetComponent<Enemy>();
+                    enemy.Damage(1, transform.position);
+                    _rb.AddForce((transform.position - collision.transform.position).normalized * _enemyBounceoffForce, ForceMode.Impulse);
+                    }
                 }
             }
+        _snd.Play("Hit");
+        _isThrown = false;
         }
 
     internal void ThrowItem(AimingArchScript aimingArch)
@@ -107,5 +144,7 @@ public class PickupableItemScript : MonoBehaviour {
         _rb.AddForce(aimingArch.Direction, ForceMode.VelocityChange);
         State = PickupItemState.Normal;
         transform.parent = null;
+        _isThrown = true;
+        _snd.Play("Throw");
         }
     }
