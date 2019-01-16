@@ -111,9 +111,9 @@ public class PickupableItemScript : MonoBehaviour {
 
     private void OnCollisionEnter(Collision collision)
         {
-        if (!collision.collider.isTrigger)
+        //on throw
+        if (!collision.gameObject.CompareTag("Player"))
             {
-            //on throw with enough force
             if (State == PickupItemState.Normal && _isThrown)
                 {
                 if (_destructable && DamageTimer <= 0)
@@ -133,9 +133,9 @@ public class PickupableItemScript : MonoBehaviour {
                     _rb.AddForce((transform.position - collision.transform.position).normalized * _enemyBounceoffForce, ForceMode.Impulse);
                     }
                 }
+            _snd.Play("Hit");
+            _isThrown = false;
             }
-        _snd.Play("Hit");
-        _isThrown = false;
         }
 
     internal void ThrowItem(AimingArchScript aimingArch)

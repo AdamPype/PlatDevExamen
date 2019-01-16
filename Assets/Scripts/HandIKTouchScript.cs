@@ -82,7 +82,7 @@ public class HandIKTouchScript : MonoBehaviour {
         else //rotate IK to object held
             {
             Vector3 newRot = transform.localEulerAngles;
-            newRot.x = -90;
+            newRot.x = -75;
             transform.localEulerAngles = newRot;
             }
         }

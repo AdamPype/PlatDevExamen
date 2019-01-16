@@ -23680,6 +23680,18 @@ Prefab:
       propertyPath: _gradient.key0.a
       value: 0.6117647
       objectReference: {fileID: 0}
+    - target: {fileID: 4448893090899970, guid: c25880bb729dd644b88aead90450f43c, type: 2}
+      propertyPath: m_LocalPosition.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4448893090899970, guid: c25880bb729dd644b88aead90450f43c, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 1.558
+      objectReference: {fileID: 0}
+    - target: {fileID: 4448893090899970, guid: c25880bb729dd644b88aead90450f43c, type: 2}
+      propertyPath: m_LocalPosition.z
+      value: 0.319
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c25880bb729dd644b88aead90450f43c, type: 2}
   m_IsPrefabAsset: 0
