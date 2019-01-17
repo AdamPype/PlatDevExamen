@@ -13,6 +13,7 @@ public class HeadTriggerScript : MonoBehaviour {
 
     private void OnTriggerStay(Collider other)
         {
-        _player.HitRoof();
+        if (!other.isTrigger)
+            _player.HitRoof();
         }
     }

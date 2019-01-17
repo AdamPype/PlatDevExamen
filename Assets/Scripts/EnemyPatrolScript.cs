@@ -124,6 +124,9 @@ public class EnemyPatrolScript : Enemy {
         //walking movement
         Animator.SetFloat("VerticalVelocity", Vector3.Scale(_agent.velocity, new Vector3(1, 0, 1)).magnitude * 0.25f);
 
+        //navmesh jump
+        Animator.SetBool("Jumping", _agent.isOnOffMeshLink);
+
         //indicator
         _indicator.IndicatorValue = _povTimer > 0 ? 1 - (_povTimer / _povTime) : 0;
         _indicator.Searching = _state == PatrolEnemyState.Search;
